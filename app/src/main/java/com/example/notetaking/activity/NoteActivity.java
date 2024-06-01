@@ -16,16 +16,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.notetaking.R;
 import com.example.notetaking.activity.fragment.AttachmentFragment;
 import com.example.notetaking.function.CommonFunction;
 import com.example.notetaking.function.MyCallBack;
+import com.example.notetaking.function.NoteFolderAdapter;
+import com.example.notetaking.function.SessionPref;
+import com.example.notetaking.modal.NoteFolder;
 import com.example.notetaking.modal.NoteRow;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -38,10 +43,11 @@ public class NoteActivity extends AppCompatActivity {
     public static EditText title_et, content_et;
     ImageView btn_Bold, btn_Italic, btn_Bullet, btn_Save, btn_Delete, btn_attachment;
     public static boolean isEditMode = false;
-    public static String title, content, docId;
+    public static String title, content, docId, folder_title = "user_notes";
     public static List<String> attachAudio, attachImg;
     public static AppCompatActivity activity;
     public static Context context;
+    public static SessionPref sessionPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,7 @@ public class NoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_note);
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         isEditMode = false;
+        sessionPref = new SessionPref(NoteActivity.this);
         activity = NoteActivity.this;
         context = NoteActivity.this;
 
@@ -62,6 +69,7 @@ public class NoteActivity extends AppCompatActivity {
         btn_attachment = findViewById(R.id.btn_attachment);
 
         //received for edit
+        folder_title = getIntent().getStringExtra("folder_title");
         title = getIntent().getStringExtra("title");
         content = getIntent().getStringExtra("content");
         docId = getIntent().getStringExtra("docId");
@@ -114,7 +122,7 @@ public class NoteActivity extends AppCompatActivity {
 
     private void deleteNote() {
         if (isEditMode) {
-            CommonFunction.getCollectionReferenceForNotes().document(docId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            CommonFunction.getCollectionReferenceForFolder().collection(folder_title).document(docId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
@@ -143,21 +151,22 @@ public class NoteActivity extends AppCompatActivity {
         DocumentReference documentReference;
         if (isEditMode) {
             //update the note
-            documentReference = CommonFunction.getCollectionReferenceForNotes().document(docId);
+            documentReference = CommonFunction.getCollectionReferenceForFolder().collection(folder_title).document(docId);
         } else {
             //create new note
-            documentReference = CommonFunction.getCollectionReferenceForNotes().document();
+            documentReference = CommonFunction.getCollectionReferenceForFolder().collection(folder_title).document();
         }
-        Toast.makeText(context, "doc id : " + documentReference.getId(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "doc id : " + documentReference.getId(), Toast.LENGTH_SHORT).show();
         documentReference.set(note).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(context, "doc id 2: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "doc id 2: " + documentReference.getId(), Toast.LENGTH_SHORT).show();
                     if (!isEditMode) {
                         docId = documentReference.getId();
                         isEditMode = true;
                     }
+                    storeFolderInList(folder_title);
                     if (myCallBack != null) {
                         myCallBack.callBack();
                     } else {
@@ -170,6 +179,63 @@ public class NoteActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private static void storeFolderInList(String folderTitle) {
+        if (sessionPref.isSideOrganization()) {
+            CommonFunction.getCollectionReferenceForFolder().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            NoteFolder noteFolder = document.toObject(NoteFolder.class);
+                            if (document.getData().keySet().size() == 0) {
+                                noteFolder.folderTitles.add("user_notes");
+                                CommonFunction.getCollectionReferenceForFolder().set(noteFolder).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            //note default folder add is added
+                                            Log.e("done default", "Note saved successfully");
+                                        } else {
+                                            Log.e("Error default", "Failed while adding note");
+                                        }
+                                    }
+                                });
+                            }
+                            boolean isNeed = true;
+                            for (String fieldName : noteFolder.folderTitles) {
+                                Log.d("Field", fieldName);
+                                if (fieldName.equals(folder_title)) {
+                                    isNeed = false;
+                                }
+                            }
+                            if (isNeed) {
+                                noteFolder.folderTitles.add(folder_title);
+                                CommonFunction.getCollectionReferenceForFolder().set(noteFolder).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            //note default folder add is added
+                                            Log.e("done default", "Note saved successfully");
+                                        } else {
+                                            Log.e("Error default", "Failed while adding note");
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            // Document does not exist
+                            Log.d("Document", "No such document");
+                        }
+                    } else {
+                        // Error getting document
+                        Log.d("Error", "Error getting document: ", task.getException());
+                    }
+                }
+            });
+        }
     }
 
     private void applyFormatting(String formatting) {

@@ -22,6 +22,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
@@ -102,6 +103,7 @@ public class CommonFunction {
         fragmentTransaction.replace(resId, fragment);
         fragmentTransaction.commit();
     }
+
     public static void loadFragmentWithStack(FragmentActivity fragmentActivity, int layout, Fragment fragment, String fragmentName) {
         FragmentTransaction fragmentTransaction = fragmentActivity.getSupportFragmentManager().beginTransaction();
         //   fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
@@ -172,12 +174,10 @@ public class CommonFunction {
         }
         return jsonArray.toString();
     }
-
-
-    public static CollectionReference getCollectionReferenceForNotes() {
+    public static DocumentReference getCollectionReferenceForFolder() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return FirebaseFirestore.getInstance().collection("notes")
-                .document(currentUser.getUid()).collection("user_notes");
+                .document(currentUser.getUid());
     }
 
 }

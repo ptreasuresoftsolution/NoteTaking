@@ -24,7 +24,6 @@ import com.example.notetaking.activity.MainActivity;
 import com.example.notetaking.activity.NoteActivity;
 import com.example.notetaking.function.ImgAdapter;
 import com.example.notetaking.function.MyCallBack;
-import com.example.notetaking.function.NoteAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;

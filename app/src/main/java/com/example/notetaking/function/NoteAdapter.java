@@ -22,10 +22,12 @@ import java.util.Arrays;
 
 public class NoteAdapter extends FirestoreRecyclerAdapter<NoteRow, NoteAdapter.NoteViewHolder> {
     Context context;
+    String folder_title;
 
-    public NoteAdapter(@NonNull FirestoreRecyclerOptions<NoteRow> options, Context context) {
+    public NoteAdapter(@NonNull FirestoreRecyclerOptions<NoteRow> options, Context context,String folder_title) {
         super(options);
         this.context = context;
+        this.folder_title = folder_title;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class NoteAdapter extends FirestoreRecyclerAdapter<NoteRow, NoteAdapter.N
             Intent intent = new Intent(context, NoteActivity.class);
             intent.putExtra("title", note.title);
             intent.putExtra("content", note.content);
+            intent.putExtra("folder_title", folder_title);
             String docId = this.getSnapshots().getSnapshot(position).getId();
             intent.putExtra("docId", docId);
             intent.putExtra("attachImg", new Gson().toJson(note.attachImg));

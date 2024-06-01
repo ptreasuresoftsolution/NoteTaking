@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.MainActivity">
+    tools:context=".activity.NoteListActivity">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -25,62 +25,30 @@
             android:paddingRight="10dp"
             android:paddingBottom="2dp">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/folder_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="User side" />
-
-                <Switch
-                    android:id="@+id/switch_side"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Organization side" />
-            </LinearLayout>
+                android:text="fname" />
 
             <ImageView
-                android:id="@+id/search_iv"
+                android:id="@+id/delete_fl_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:src="@drawable/search" />
-
-            <ImageView
-                android:id="@+id/add_folder_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:src="@drawable/folder_plus"
-                android:visibility="gone" />
+                android:src="@drawable/delete" />
 
             <ImageView
                 android:id="@+id/add_note_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:src="@drawable/plus_lg_add"
-                android:visibility="gone" />
+                android:src="@drawable/plus_lg_add" />
 
-            <ImageView
-                android:id="@+id/logout_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:src="@drawable/box_arrow_right_logout" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/note_mainList"

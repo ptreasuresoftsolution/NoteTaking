@@ -17,6 +17,7 @@ public class SessionPref {
     public final String UserEmail = "UserEmail";
     public final String UserProviderId = "UserProviderId";
     public final String UserPassword = "UserPassword";
+    public final String SwitchSideType = "SwitchSideType";
 
     public String getString(String key) {
         return appSharedPref.getString(key, "");
@@ -48,6 +49,15 @@ public class SessionPref {
 
     public void setIsLogin(boolean isLogin) {
         setBoolean(IsLogin, isLogin);
+    }
+
+
+    public boolean isSideOrganization() {
+        return getBoolean(SwitchSideType);
+    }
+
+    public void setIsSideOrganization(boolean switchSideType) {
+        setBoolean(SwitchSideType, switchSideType);
     }
 
 
